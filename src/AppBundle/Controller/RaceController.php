@@ -51,11 +51,11 @@ class RaceController extends Controller
                 throw $e;
             }
         }
-        return $this->render('index.html.twig', ['message' => $msg]);
+        return $this->render('index.html.twig', ['create_race_msg' => $msg]);
     }
 
     private function getHorsesForRace(){
         return $this->getDoctrine()->getRepository(Horse::class)->getHorsesForRace();
     }
 }
-
+?>

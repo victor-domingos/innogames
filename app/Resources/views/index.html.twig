@@ -2,17 +2,26 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>{% block title %}Horse Racing Simulator{% endblock %}</title>
-        {% block stylesheets %}{% endblock %}
+        <title>Horse Racing Simulator</title>
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
     </head>
     <body>
-        {% block body %}
+        <!--CREATE RACE-->
         <a href="{{ path('create_race') }}" value="Create Race"/>Create Race</a>
-        {% if message is defined %}
-            {{message}}
+        {% if create_race_msg is defined %}
+            {{create_race_msg}}
         {% endif %}
-        {% endblock %}
-        {% block javascripts %}{% endblock %}
+        <hr/>
+        <!--PROGRESS-->
+        <a href="#" value="Progress">Progress</a>
+        <hr/>
+        <!--RUNNING RACES-->
+        {% include 'running_races.html.twig' %}
+        <hr/>
+        <!--LAST 5 FINISHED RACES-->
+        {% include 'finished_races.html.twig' %}
+        <hr/>
+        <!--RECORD-->
+        {% include 'race_record.html.twig' %}
     </body>
 </html>
