@@ -4,6 +4,7 @@ namespace AppBundle\Controller;
 
 use AppBundle\Entity\Horse;
 use AppBundle\Entity\Race;
+use AppBundle\Entity\RacingHorse;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
@@ -21,23 +22,41 @@ class RaceController extends Controller
         if ($activeRaces >= 3) {
             $msg = "There are already 3 active races!";
         } else {
+            $em = $this->getDoctrine()->getManager();
+            $em->getConnection()->beginTransaction();
+            try{
+                $horsesForRace = $this->getDoctrine()->getRepository(Horse::class)->getHorsesForRace();
 
-            $horseRepository = $this->getDoctrine()->getRepository(Horse::class);
-            $horsesForRace = $horseRepository->getHorsesForRace();
+                /**
+                 * ToDo
+                 */
 
-            /**
-             * ToDo
-             */
+                $race = new Race();
+                $em->persist($race);
 
-            $race = new Race();
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($race);
-            $entityManager->flush();
-            $msg = "Race started successfully!";
+                $i = 0;
+                foreach ($horsesForRace as $horse){
+                    $racingHorse = new RacingHorse();
+                    $racingHorse->setRace($race);
+                    $racingHorse->setHorse($horse);
+                    $racingHorse->setDistanceCovered(0);
+                    $em->persist($racingHorse);
+                    if (++$i >= 8) break;
+                }
+
+                $em->flush();
+                $em->getConnection()->commit();
+                $msg = "Race started successfully!";
+            } catch (Exception $e){
+                $em->getConection()->rollBack();
+                throw $e;
+            }
         }
-
-
         return $this->render('index.html.twig', ['message' => $msg]);
+    }
+
+    private function getHorsesForRace(){
+        return $this->getDoctrine()->getRepository(Horse::class)->getHorsesForRace();
     }
 }
 

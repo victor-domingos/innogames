@@ -14,19 +14,19 @@ class HorseRepository extends EntityRepository {
 
         $expr = $this->_em->getExpressionBuilder();
         $subQueryRace = $this->_em->createQueryBuilder()
-            ->select('r')
+            ->select('r.id')
             ->from(Race::class, 'r')
             ->where('r.finished is null');
 
         $subQueryRacingHorse = $this->_em->createQueryBuilder()
-            ->select('hr')
-            ->from(RacingHorse::class, 'hr')
-            ->where($expr->not($expr->exists($subQueryRace->getDQL())));
+            ->select('rh')
+            ->from(RacingHorse::class, 'rh')
+            ->where($expr->in('rh.race', $subQueryRace->getDQL()));
 
         $query = $this->_em->createQueryBuilder()
             ->select('h')
             ->from(Horse::class, 'h')
-            ->where($expr->not($expr->exists($subQueryRacingHorse->getDQL())));
+            ->where($expr->notIn('h.id', $subQueryRacingHorse->getDQL()));
 
         //The idea was to get a random array of 8 horses, but Doctrine doesn't support the "order by RAND()" and the extensions didn't work properly
         $result = $query->getQuery()->getResult();
