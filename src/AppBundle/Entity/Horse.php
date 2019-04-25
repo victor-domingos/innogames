@@ -121,7 +121,7 @@ class Horse {
     }
 
     public function getSlowerSpeed(){
-        return $this->getHorseSpeed() - 5 * (100 - ($this->getEndurance() * 8) / 100);
+        return $this->getHorseSpeed() - 5 * (100 - ($this->getStrength() * 8)) / 100;
     }
 }
 

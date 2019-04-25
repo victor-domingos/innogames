@@ -31,7 +31,7 @@ class RacingHorse {
 
     /**
      *
-     * @ORM\Column(name="distance_covered", type="decimal", precision=7, scale=3)
+     * @ORM\Column(name="distance_covered", type="decimal", precision=10, scale=3)
      */
     private $distanceCovered;
 

@@ -89,19 +89,19 @@ class RaceController extends Controller
         $checkpoint = $horse->getCheckpoint();
         $startingPoint = $racingHorse->getDistanceCovered();
         //Checking which of the two speeds is used to start that moment;
-        $startingSpeed = $startingPoint >= $checkpoint ? $horse->getHorseSpeed() : $horse->getSlowerSpeed();
+        $startingSpeed = $startingPoint <= $checkpoint ? $horse->getHorseSpeed() : $horse->getSlowerSpeed();
         $estimatedDistance = constant('self::SECONDS_PER_PROGRESS') * $startingSpeed;
         $estimatedFinalPoint = $startingPoint + $estimatedDistance;
-
         //Horse has not reached the point of slowdown, so it simply adds the estimated distance
         if ($estimatedFinalPoint <= $checkpoint) {
             $racingHorse->setDistanceCovered($estimatedFinalPoint);
-            $em->merge($racingHorse);
+           // $em->merge($racingHorse);
         //In that case, the horse will use its normal speed until the checkpoint and the slower speed after the checkpoint
         //It will also be needed to calculate when that checkpoint is reached to know the exact time of the change of speed
         } else {
 
         }
+
     }
 
     private function getRunningRaces(){
