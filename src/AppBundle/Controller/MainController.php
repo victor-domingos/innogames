@@ -7,14 +7,16 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class DefaultController extends Controller
+class MainController extends Controller
 {
     /**
      * @Route("/index", name="homepage")
      */
-    public function indexAction() {
+    public function indexAction($createRaceMsg = null) {
         
-        return $this->render('index.html.twig');
+        return $this->render('index.html.twig', [
+            'createRaceMsg' => $createRaceMsg
+        ]);
     }
 }
 ?>

@@ -1,4 +1,9 @@
 <!DOCTYPE html>
 <html>
 	<h2>Running Races</h2>
+	{% if runningRaces is defined %}
+
+	{% else %}
+		There are no current races being runned!
+	{% endif %}
 </html>

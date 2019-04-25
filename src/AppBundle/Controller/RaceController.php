@@ -27,7 +27,6 @@ class RaceController extends Controller
                 $horsesForRace = $this->getDoctrine()->getRepository(Horse::class)->getHorsesForRace();
 
                 $race = new Race();
-                $race->setTimeElapsed(0);
                 $em->persist($race);
 
                 $i = 0;
@@ -51,7 +50,7 @@ class RaceController extends Controller
                 throw $e;
             }
         }
-        return $this->render('index.html.twig', ['create_race_msg' => $msg]);
+        return $this->forward('AppBundle\Controller\MainController::indexAction', ['createRaceMsg' => $msg]);
     }
 
     private function getHorsesForRace(){

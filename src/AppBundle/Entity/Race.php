@@ -25,9 +25,9 @@ class Race {
     private $timeElapsed;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(name="finished_time", type="datetime")
      */
-    private $finished;
+    private $finishedTime;
 
     /**
      * @ORM\OneToMany(targetEntity="AppBundle\Entity\RacingHorse", mappedBy="race")
@@ -55,12 +55,12 @@ class Race {
         $this->timeElapsed = $timeElapsed;
     }
 
-    public function getFinished(){
-        return $this->finished;
+    public function getFinishedTime(){
+        return $this->finishedTime;
     }
 
-    public function setFinished($finished){
-        $this->finished = $finished;
+    public function setFinishedTime($finishedTime){
+        $this->finishedTime = $finishedTime;
     }
 
     public function getRacingHorseRaces(){
