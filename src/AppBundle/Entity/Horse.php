@@ -11,6 +11,12 @@ use Doctrine\ORM\Mapping as ORM;
  */
 
 class Horse {
+
+    const BASE_SPEED = 5;
+    const ENDURANCE_MULTIPLIER = 100;
+    const JOCKEY_SLOWDOWN = 5;
+    const STRENGTH_MULTIPLIER = 8;
+
 	/**
 	*
 	* @ORM\Id
@@ -112,16 +118,33 @@ class Horse {
     }
 
     //Those below are used in the race
-    public function getHorseSpeed(){
-        return $this->getSpeed() + 5;
+    public function getNormalSpeed(){
+        return $this->getSpeed() + constant('self::BASE_SPEED');
     }
 
+    //Checkpoint is when the horse becomes slower
     public function getCheckpoint(){
-        return $this->getEndurance() * 100;
+        return $this->getEndurance() * constant('self::ENDURANCE_MULTIPLIER');
     }
 
     public function getSlowerSpeed(){
-        return $this->getHorseSpeed() - 5 * (100 - ($this->getStrength() * 8)) / 100;
+        return $this->getNormalSpeed() - constant('self::JOCKEY_SLOWDOWN') 
+            * (100 - ($this->getStrength() * constant('self::STRENGTH_MULTIPLIER'))) / 100;
+    }
+
+    //Checks which speed is used to start based on the starting point, whether it is before or after the checkpoint
+    public function getStartingSpeed($startingPoint){
+        return $startingPoint < $this->getCheckpoint() ? $this->getNormalSpeed() : $this->getSlowerSpeed();
+    }
+
+    //Calculates the time left after reaching the checkpoint by using the time in which the horse reached the checkpoint
+    //with normal speed. Then, applies the slower speed at the time left
+    public function calculateFinalDistanceAfterCheckpoint($fullTime, $startingPoint, $finalDistance){
+        $timeToCheckpoint = ($this->getCheckpoint() - $startingPoint) * $fullTime / ($finalDistance - $startingPoint);
+        $timeAfterCheckpoint = $fullTime - $timeToCheckpoint;
+
+        //To know where the horse will finish the progress, it will use the left time with slower speed and add to the checkpoint
+        return $timeToCheckpoint * $this->getSlowerSpeed() + $this->getCheckpoint();
     }
 }
 
