@@ -2,6 +2,7 @@
 
 namespace AppBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -28,8 +29,14 @@ class Race {
      */
     private $finished;
 
+    /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\RacingHorse", mappedBy="race")
+     */
+    private $racingHorseRaces;
+
     public function __construct()
     {
+        $this->racingHorseRaces = new ArrayCollection();
     }
 
     public function getId() {
@@ -56,5 +63,8 @@ class Race {
         $this->finished = $finished;
     }
 
+    public function getRacingHorseRaces(){
+        return $this->racingHorseRaces;
+    }
 }
 ?>

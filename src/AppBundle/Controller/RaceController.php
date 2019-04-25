@@ -2,6 +2,7 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\Horse;
 use AppBundle\Entity\Race;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -15,11 +16,19 @@ class RaceController extends Controller
     public function createRaceAction()
     {
 
-        $repository = $this->getDoctrine()->getRepository(Race::class);
-        $activeRaces = $repository->countActiveRaces();
+        $raceRepository = $this->getDoctrine()->getRepository(Race::class);
+        $activeRaces = $raceRepository->countActiveRaces();
         if ($activeRaces >= 3) {
             $msg = "There are already 3 active races!";
         } else {
+
+            $horseRepository = $this->getDoctrine()->getRepository(Horse::class);
+            $horsesForRace = $horseRepository->getHorsesForRace();
+
+            /**
+             * ToDo
+             */
+
             $race = new Race();
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($race);

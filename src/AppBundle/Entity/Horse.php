@@ -2,12 +2,13 @@
 
 namespace AppBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
-*@ORM\Entity
-*@ORM\Table(name="horse")
-*/
+ *@ORM\Entity(repositoryClass="AppBundle\Repository\HorseRepository")
+ *@ORM\Table(name="horse")
+ */
 
 class Horse {
 	/**
@@ -42,8 +43,14 @@ class Horse {
     */
     private $endurance;
 
+    /**
+     * @ORM\OneToMany(targetEntity="AppBundle\Entity\RacingHorse", mappedBy="horse")
+     */
+    private $racingHorseHorses;
+
     public function __construct()
     {
+        $this->racingHorseHorses = new ArrayCollection();
     }
 
     public function getId() {
@@ -84,6 +91,10 @@ class Horse {
 
     public function setEndurance($endurance){
         $this->endurance = $endurance;
+    }
+
+    public function getRacingHorseHorses(){
+        return $this->racingHorseHorses;
     }
 
     //Those below are used in the race

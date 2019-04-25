@@ -13,6 +13,13 @@ class RaceRepository extends EntityRepository {
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    public function getActiveRaces(){
+        return $this->createQueryBuilder('r')
+            ->where('r.finished is null')
+            ->getQuery()
+            ->getResult();
+    }
 }
 
 ?>
