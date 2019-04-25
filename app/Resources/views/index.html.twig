@@ -8,11 +8,9 @@
     </head>
     <body>
         {% block body %}
-        <a href="{{ path('create_race') }}" value="Create Race"/>Here</a>
-        {% if warning is defined %}
-            {{warning}}
-        {% else %}
-            "Hello"
+        <a href="{{ path('create_race') }}" value="Create Race"/>Create Race</a>
+        {% if message is defined %}
+            {{message}}
         {% endif %}
         {% endblock %}
         {% block javascripts %}{% endblock %}

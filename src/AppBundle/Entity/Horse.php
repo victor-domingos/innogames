@@ -42,6 +42,10 @@ class Horse {
     */
     private $endurance;
 
+    public function __construct()
+    {
+    }
+
     public function getId() {
     	return $this->id;
     }
@@ -80,6 +84,19 @@ class Horse {
 
     public function setEndurance($endurance){
         $this->endurance = $endurance;
+    }
+
+    //Those below are used in the race
+    public function getHorseSpeed(){
+        return $this->getSpeed() + 5;
+    }
+
+    public function getCheckpoint(){
+        return $this->getEndurance() * 100;
+    }
+
+    public function getSlowerSpeed(){
+        return $this->getHorseSpeed() - 5 * (100 - ($this->getEndurance() * 8) / 100);
     }
 }
 
