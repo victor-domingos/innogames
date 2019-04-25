@@ -8,8 +8,8 @@ class RaceRepository extends EntityRepository {
 
     public function countActiveRaces(){
         return $this->createQueryBuilder('r')
-            ->where('r.finished is null')
             ->select('COUNT(r.id) as activeRaces')
+            ->where('r.finished is null')
             ->getQuery()
             ->getSingleScalarResult();
     }

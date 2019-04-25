@@ -14,8 +14,7 @@ class RaceController extends Controller
     /**
      * @Route("/create-race", name="create_race")
      */
-    public function createRaceAction()
-    {
+    public function createRaceAction() {
 
         $raceRepository = $this->getDoctrine()->getRepository(Race::class);
         $activeRaces = $raceRepository->countActiveRaces();
@@ -27,11 +26,8 @@ class RaceController extends Controller
             try{
                 $horsesForRace = $this->getDoctrine()->getRepository(Horse::class)->getHorsesForRace();
 
-                /**
-                 * ToDo
-                 */
-
                 $race = new Race();
+                $race->setTimeElapsed(0);
                 $em->persist($race);
 
                 $i = 0;
@@ -41,6 +37,9 @@ class RaceController extends Controller
                     $racingHorse->setHorse($horse);
                     $racingHorse->setDistanceCovered(0);
                     $em->persist($racingHorse);
+
+                    $horse->setRunning(1);
+                    $em->merge($horse);
                     if (++$i >= 8) break;
                 }
 

@@ -44,6 +44,12 @@ class Horse {
     private $endurance;
 
     /**
+    *
+    * @ORM\Column(type="boolean")
+    */
+    private $running;
+
+    /**
      * @ORM\OneToMany(targetEntity="AppBundle\Entity\RacingHorse", mappedBy="horse")
      */
     private $racingHorseHorses;
@@ -91,6 +97,14 @@ class Horse {
 
     public function setEndurance($endurance){
         $this->endurance = $endurance;
+    }
+
+    public function getRunning(){
+        return $this->running;
+    }
+
+    public function setRunning($running){
+        $this->running = $running;
     }
 
     public function getRacingHorseHorses(){
