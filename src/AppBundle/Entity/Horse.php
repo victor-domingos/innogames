@@ -144,7 +144,7 @@ class Horse {
         $timeAfterCheckpoint = $fullTime - $timeToCheckpoint;
 
         //To know where the horse will finish the progress, it will use the left time with slower speed and add to the checkpoint
-        return $timeToCheckpoint * $this->getSlowerSpeed() + $this->getCheckpoint();
+        return $timeAfterCheckpoint * $this->getSlowerSpeed() + $this->getCheckpoint();
     }
 }
 
