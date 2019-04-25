@@ -13,7 +13,10 @@
         {% endif %}
         <hr/>
         <!--PROGRESS-->
-        <a href="#" value="Progress">Progress</a>
+        <a href="{{ path('progress_race') }}" value="Progress">Progress</a>
+        {% if progressRaceMsg is defined %}
+            {{progressRaceMsg}}
+        {% endif %}
         <hr/>
         <!--RUNNING RACES-->
         {% include 'running_races.html.twig' %}

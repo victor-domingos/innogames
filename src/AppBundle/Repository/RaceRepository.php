@@ -6,7 +6,7 @@ use Doctrine\ORM\EntityRepository;
 
 class RaceRepository extends EntityRepository {
 
-    public function countActiveRaces(){
+    public function countRunningRaces(){
         return $this->createQueryBuilder('r')
             ->select('COUNT(r.id) as activeRaces')
             ->where('r.finishedTime is null')
@@ -14,7 +14,7 @@ class RaceRepository extends EntityRepository {
             ->getSingleScalarResult();
     }
 
-    public function getActiveRaces(){
+    public function getRunningRaces(){
         return $this->createQueryBuilder('r')
             ->where('r.finishedTime is null')
             ->getQuery()

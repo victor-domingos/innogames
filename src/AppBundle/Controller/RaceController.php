@@ -16,10 +16,8 @@ class RaceController extends Controller
      */
     public function createRaceAction() {
 
-        $raceRepository = $this->getDoctrine()->getRepository(Race::class);
-        $activeRaces = $raceRepository->countActiveRaces();
-        if ($activeRaces >= 3) {
-            $msg = "There are already 3 active races!";
+        if ($this->countRunningRaces() >= 3) {
+            $msg = "There are already 3 running races!";
         } else {
             $em = $this->getDoctrine()->getManager();
             $em->getConnection()->beginTransaction();
@@ -53,8 +51,37 @@ class RaceController extends Controller
         return $this->forward('AppBundle\Controller\MainController::indexAction', ['createRaceMsg' => $msg]);
     }
 
-    private function getHorsesForRace(){
-        return $this->getDoctrine()->getRepository(Horse::class)->getHorsesForRace();
+    /**
+     * @Route("/progress-race", name="progress_race")
+     */
+    public function progressRaceAction() {
+        if ($this->countRunningRaces() == 0) {
+            $msg = "There is no running race to progress!";
+        } else {
+            $runningRaces = $this->getRunningRaces();
+            foreach ($runningRaces as $race){
+                $racingHorses = $this->getDoctrine()->getRepository(RacingHorse::class)->getHorsesInRunningRace($race);
+                foreach ($racingHorses as $racingHorse) {
+                    $this->progress($racingHorse);
+                }
+            }
+
+
+            $msg = "Race(s) progressed successfully!";
+        }
+        return $this->forward('AppBundle\Controller\MainController::indexAction', ['progressRaceMsg' => $msg]);
+    }
+
+    private function progress(RacingHorse $racingHorse){
+        
+    }
+
+    private function getRunningRaces(){
+        return $this->getDoctrine()->getRepository(Race::class)->getRunningRaces();
+    }
+
+    private function countRunningRaces(){
+        return $this->getDoctrine()->getRepository(Race::class)->countRunningRaces();
     }
 }
 ?>
