@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
-{% if raceRecord is defined %}
-	<h3>Race Record</h3>
-	<b>Best time:</b> {{ raceRecord[0].timeInSeconds }} s <br/>
-	<b>Horse:</b> {{ raceRecord[0].horse.name }} <br/>
-	<b>Speed:</b> {{ raceRecord[0].horse.speed }} <br/>
-	<b>Strength:</b> {{ raceRecord[0].horse.strength }} <br/>
-	<b>Endurance:</b> {{ raceRecord[0].horse.endurance }}
-{% else %}
+{% if raceRecord is empty %}
 	No races have finished yet!
+{% else %}
+	<h3>Race Record</h3>
+	<b>Best time:</b> {{ raceRecord.timeInSeconds|number_format(3) }} s <br/>
+	<b>Horse:</b> {{ raceRecord.horse.name }} <br/>
+	<b>Speed:</b> {{ raceRecord.horse.speed }} <br/>
+	<b>Strength:</b> {{ raceRecord.horse.strength }} <br/>
+	<b>Endurance:</b> {{ raceRecord.horse.endurance }}
 {% endif %}
 </html>

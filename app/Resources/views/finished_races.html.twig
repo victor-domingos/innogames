@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
-{% if finishedRaces is defined %}
+{% if finishedRaces is empty %}
+	No races have finished yet!
+{% else %}
 	<table border="1" style="border: thin; width: 100%">
 		<tr>
 			<td colspan="5">
@@ -35,7 +37,5 @@
 			</td>
         {% endfor %}
 	</table>
-{% else %}
-	No races have finished yet!
 {% endif %}
 </html>

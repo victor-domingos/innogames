@@ -22,28 +22,38 @@ class MainController extends Controller
      * @Route("/index", name="homepage")
      */
     public function indexAction($createRaceMsg = null, $progressRaceMsg = null) {
-        $countRunningRaces = $this->raceService->countRunningRaces();
-
         //Creating an array of variables that will be passed to the index.html.twig
         //If something is not appliable (e.g. no running races), then no variable would be passed
         $viewVariables = [
             'createRaceMsg' => $createRaceMsg,
-            'progressRaceMsg' => $progressRaceMsg,
-            'countRunningRaces' => $countRunningRaces
+            'progressRaceMsg' => $progressRaceMsg
         ];
 
         //Running Races
-        if ($countRunningRaces > 0){
+        $viewVariables['races'] = $this->setRunningRaces();
+
+        //Last 5 Finished Races
+        $viewVariables['finishedRaces'] = $this->setFinishedRaces();
+
+        //Race Record
+        $viewVariables['raceRecord'] = $this->setRaceRecord();
+
+        return $this->render('index.html.twig', $viewVariables);
+    }
+
+    private function setRunningRaces(){
+        if ($this->raceService->countRunningRaces() > 0){
             $races = array();
             $runningRaces = $this->raceService->getRunningRaces();
             //Get the data from each running race and add to the array of variables to show in "real time" in the index page
             foreach ($runningRaces as $race){
                 array_push($races, $this->racingHorseService->getHorsesInRunningRace($race));
             }
-            $viewVariables['races'] = $races;
+            return $races;
         }
+    }
 
-        //Last 5 Finished Races
+    private function setFinishedRaces(){
         $finishedRaces = array();
         $lastFiveFinishedRaces = $this->raceService->getLastFiveFinishedRaces();
         if (sizeof($lastFiveFinishedRaces) > 0){
@@ -51,16 +61,15 @@ class MainController extends Controller
             foreach($lastFiveFinishedRaces as $finishedRace){
                 array_push($finishedRaces, $this->racingHorseService->getFinishedRacePodium($finishedRace));
             }
-            $viewVariables['finishedRaces'] = $finishedRaces;
+            return $finishedRaces;
         }
+    }
 
-        //Race Record
+    private function setRaceRecord(){
         $raceRecord = $this->racingHorseService->getRaceRecord();
         if ($raceRecord != null){
-            $viewVariables['raceRecord'] = $raceRecord;
+             return $raceRecord[0];
         }
-
-        return $this->render('index.html.twig', $viewVariables);
     }
 }
 ?>
