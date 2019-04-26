@@ -91,9 +91,11 @@ class RaceController extends Controller
         return $this->forward('AppBundle\Controller\MainController::indexAction', ['progressRaceMsg' => $msg]);
     }
 
+    //Method to process the progress of each horse of the race, updating his data regarding distance covered and finishing time
     private function progress(RacingHorse $racingHorse){
         $em = $this->getDoctrine()->getManager();
         $horse = $racingHorse->getHorse();
+        $race = $racingHorse->getRace();
         $startingPoint = $racingHorse->getDistanceCovered();
 
         //If horse already has passed checkpoint, the next "checkpoint" would be the finish line
@@ -107,11 +109,22 @@ class RaceController extends Controller
         //how much of the distance is covered with the reduced speed. If the checkpoint is the finish line, then it will be 
         //calculated when the horse has reached it within that progress
         if ($startingPoint < $checkpoint && $estimatedFinalPoint >= $checkpoint) {
-            $racingHorse->setDistanceCovered($horse->calculateFinalDistanceAfterCheckpoint(
-                constant('self::SECONDS_PER_PROGRESS'), $startingPoint, $estimatedFinalPoint
-            ));
+            //Checking whether the checkpoint is the finishing line or not to retrieve the correct piece of information
+            if ($checkpoint == constant('self::RACE_LENGTH')) {
+                $racingHorse->setDistanceCovered($checkpoint);
+                //The finishing time will be the race's time elapsed (as it still doesn't have the seconds per progress added
+                //plus the time needed to reach the goal in that progress
+                $racingHorse->setTimeInSeconds(
+                    $race->getTimeElapsed() + $horse->getTimeToCheckpoint(
+                        $checkpoint, constant('self::SECONDS_PER_PROGRESS'), $startingPoint, $estimatedFinalPoint
+                    ));
+            } else {
+                $racingHorse->setDistanceCovered($horse->calculateFinalDistanceAfterCheckpoint(
+                    constant('self::SECONDS_PER_PROGRESS'), $startingPoint, $estimatedFinalPoint
+                ));
+            }
 
-        //Horse has not reached any checkpoint, so it simply adds the estimated distance
+        //Horse has not reached any checkpoint, so it simply adds the estimated distance as it will run with an uniform speed and in the full time
         } else {
             $racingHorse->setDistanceCovered($estimatedFinalPoint);
         }

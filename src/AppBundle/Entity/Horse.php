@@ -140,11 +140,17 @@ class Horse {
     //Calculates the time left after reaching the checkpoint by using the time in which the horse reached the checkpoint
     //with normal speed. Then, applies the slower speed at the time left
     public function calculateFinalDistanceAfterCheckpoint($fullTime, $startingPoint, $finalDistance){
-        $timeToCheckpoint = ($this->getCheckpoint() - $startingPoint) * $fullTime / ($finalDistance - $startingPoint);
+        //This function is only called when the endurance checkpoint is reached, so we always use the horse's checkpoint
+        $timeToCheckpoint =  $this->getTimeToCheckpoint($this->getCheckpoint(), $fullTime, $startingPoint, $finalDistance);
         $timeAfterCheckpoint = $fullTime - $timeToCheckpoint;
 
         //To know where the horse will finish the progress, it will use the left time with slower speed and add to the checkpoint
         return $timeAfterCheckpoint * $this->getSlowerSpeed() + $this->getCheckpoint();
+    }
+
+    //Calculates when the checkpoint was reached within a progress
+    public function getTimeToCheckpoint($checkpoint, $fullTime, $startingPoint, $finalDistance){
+        return ($checkpoint - $startingPoint) * $fullTime / ($finalDistance - $startingPoint);
     }
 }
 
