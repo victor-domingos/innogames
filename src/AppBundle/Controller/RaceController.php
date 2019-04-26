@@ -5,6 +5,9 @@ namespace AppBundle\Controller;
 use AppBundle\Entity\Horse;
 use AppBundle\Entity\Race;
 use AppBundle\Entity\RacingHorse;
+use AppBundle\Service\HorseService;
+use AppBundle\Service\RaceService;
+use AppBundle\Service\RacingHorseService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
@@ -14,37 +17,52 @@ class RaceController extends Controller
     const RACE_LENGTH = 1500;
     const SECONDS_PER_PROGRESS = 10;
 
+    private $em;
+    private $horseService;
+    private $raceService;
+    private $racingHorseService;
+
+    public function __construct(EntityManagerInterface $em, 
+        HorseService $horseService, 
+        RaceService $raceService, 
+        RacingHorseService $racingHorseService)
+    {
+        $this->em = $em;
+        $this->horseService = $horseService;
+        $this->raceService = $raceService;
+        $this->racingHorseService = $racingHorseService;
+    }
+
     /**
      * @Route("/create-race", name="create_race")
      */
     public function createRaceAction() {
 
-        if ($this->countRunningRaces() >= 3) {
+        if ($this->raceService->countRunningRaces() >= 3) {
             $msg = "There are already 3 running races!";
         } else {
-            $em = $this->getDoctrine()->getManager();
-            $em->getConnection()->beginTransaction();
+            $this->em->getConnection()->beginTransaction();
             try{
-                $horsesForRace = $this->getDoctrine()->getRepository(Horse::class)->getHorsesForRace();
+                $horsesForRace = $this->horseService->getHorsesForRace();
 
                 $race = new Race();
-                $em->persist($race);
+                $this->em->persist($race);
 
                 $i = 0;
                 foreach ($horsesForRace as $horse){
-                    $em->persist(new RacingHorse($race, $horse, 0));
+                    $this->em->persist(new RacingHorse($race, $horse, 0));
 
                     $horse->setRunning(1);
-                    $em->merge($horse);
+                    $this->em->merge($horse);
                     //Breaks after selecting the 8th horse
                     if (++$i >= 8) break;
                 }
 
-                $em->flush();
-                $em->getConnection()->commit();
+                $this->em->flush();
+                $this->em->getConnection()->commit();
                 $msg = "Race started successfully!";
             } catch (Exception $e){
-                $em->getConection()->rollBack();
+                $this->em->getConection()->rollBack();
                 throw $e;
             }
         }
@@ -55,18 +73,17 @@ class RaceController extends Controller
      * @Route("/progress-race", name="progress_race")
      */
     public function progressRaceAction() {
-        if ($this->countRunningRaces() == 0) {
+        if ($this->raceService->countRunningRaces() == 0) {
             $msg = "There is no running race to progress!";
         } else {
-            $em = $this->getDoctrine()->getManager();
-            $em->getConnection()->beginTransaction();
+            $this->em->getConnection()->beginTransaction();
             try{
                 //We use a variable to get how many horses have finished within that progress, since the number retrieved in the query
                 //that checks whether the race has finished is not fully updated
                 $horsesThatFinishedInThisProgress = 0;
-                $runningRaces = $this->getDoctrine()->getRepository(Race::class)->getRunningRaces();
+                $runningRaces = $this->raceService->getRunningRaces();
                 foreach ($runningRaces as $race){
-                    $racingHorses = $this->getDoctrine()->getRepository(RacingHorse::class)->getHorsesInRunningRace($race);
+                    $racingHorses = $this->racingHorseService->getHorsesInRunningRace($race);
                     foreach ($racingHorses as $racingHorse) {
                         //Only progress the horses that still have to finish the race
                         if ($racingHorse->getDistanceCovered() < constant('self::RACE_LENGTH')){
@@ -78,11 +95,11 @@ class RaceController extends Controller
                     $this->updateRace($race, $racingHorses, $horsesThatFinishedInThisProgress);
                 }
 
-                $em->flush();
-                $em->getConnection()->commit();
+                $this->em->flush();
+                $this->em->getConnection()->commit();
                 $msg = "Race(s) progressed successfully!";
             } catch (Exception $e){
-                $em->getConection()->rollBack();
+                $this->em->getConection()->rollBack();
                 throw $e;
             }
         }
@@ -93,7 +110,6 @@ class RaceController extends Controller
     private function progress(RacingHorse $racingHorse){
         $horsesThatFinishedInThisProgress = 0;
 
-        $em = $this->getDoctrine()->getManager();
         $horse = $racingHorse->getHorse();
         $race = $racingHorse->getRace();
         $startingPoint = $racingHorse->getDistanceCovered();
@@ -130,33 +146,28 @@ class RaceController extends Controller
             $racingHorse->setDistanceCovered($estimatedFinalPoint);
         }
 
-        $em->merge($racingHorse);
+        $this->em->merge($racingHorse);
         return $horsesThatFinishedInThisProgress;
     }
 
     //Method to check whether the race is finished and update data or still running and add the elapsed time
     private function updateRace(Race $race, $racingHorses, $horsesThatFinishedInThisProgress){
-        $em = $this->getDoctrine()->getManager();
         $finishedHorses = $horsesThatFinishedInThisProgress +
-            $this->getDoctrine()->getRepository(RacingHorse::class)->countNumberOfFinishedHorses($race);
+            $this->racingHorseService->countNumberOfFinishedHorses($race);
         if ($finishedHorses == 8){
             $race->finishRace();
-            $em->merge($race);
+            $this->em->merge($race);
             //We still have to update the horse's running condition to false
             foreach ($racingHorses as $racingHorse) {
                 $horse = $racingHorse->getHorse();
                 $horse->setRunning(false);
-                $em->merge($horse);
+                $this->em->merge($horse);
             }
         } else {
             //Race still running, so we must update the time elapsed of the race after progressing each of the horses
             $race->setTimeElapsed($race->getTimeElapsed() + constant('self::SECONDS_PER_PROGRESS'));
         }
-        $em->merge($race);
-    }
-
-    private function countRunningRaces(){
-        return $this->getDoctrine()->getRepository(Race::class)->countRunningRaces();
+        $this->em->merge($race);
     }
 }
 ?>
