@@ -1,9 +1,48 @@
 <!DOCTYPE html>
 <html>
-	<h2>Running Races</h2>
-	{% if runningRaces is defined %}
-
-	{% else %}
-		There are no current races being runned!
-	{% endif %}
+{% if countRunningRaces == 0 %}
+    There are no current races being runned!
+{% else %}
+    <table border="1" style="border: thin; width: 100%">
+        <tr>
+            <td colspan="3">
+                <h2>Running Races</h2>
+            </td>
+        </tr>
+        {% for race in races %}
+            <td style="width: 33%">
+                <table border="1" style="border: thin; width: 100%;">
+                    <tr>
+                        <td colspan="2">
+                            Race #
+                        </td>
+                        <td colspan="2">
+                            Time elapsed:
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Position</td>
+                        <td>Horse</td>
+                        <td>Distance Covered</td>
+                        <td>Final Time</td>
+                    </tr>
+                    {% for racingHorse in race %}
+                        <tr>
+                            <td>{{ loop.index }} </td>
+                            <td>{{ racingHorse.horse.name }}</td>
+                            <td>{{ racingHorse.distanceCovered }} m</td>
+                            <td>
+                                {{ racingHorse.timeInSeconds }}
+                                {% if racingHorse.timeInSeconds is not null %}
+                                    s
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </td>
+        {% endfor %}
+        </tr>
+    </table>
+{% endif %}
 </html>

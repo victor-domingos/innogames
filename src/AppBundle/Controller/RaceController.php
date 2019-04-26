@@ -32,12 +32,7 @@ class RaceController extends Controller
 
                 $i = 0;
                 foreach ($horsesForRace as $horse){
-                    //ToDo: Check constructor
-                    $racingHorse = new RacingHorse();
-                    $racingHorse->setRace($race);
-                    $racingHorse->setHorse($horse);
-                    $racingHorse->setDistanceCovered(0);
-                    $em->persist($racingHorse);
+                    $em->persist(new RacingHorse($race, $horse, 0));
 
                     $horse->setRunning(1);
                     $em->merge($horse);

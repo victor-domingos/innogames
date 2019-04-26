@@ -42,8 +42,11 @@ class RacingHorse {
     private $timeInSeconds;
 
 
-    public function __construct()
+    public function __construct($race, $horse, $distanceCovered)
     {
+        $this->race = $race;
+        $this->horse = $horse;
+        $this->distanceCovered = $distanceCovered;
     }
 
     public function getId() {
