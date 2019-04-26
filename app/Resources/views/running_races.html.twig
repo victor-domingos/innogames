@@ -14,17 +14,23 @@
                 <table border="1" style="border: thin; width: 100%;">
                     <tr>
                         <td colspan="2">
-                            Race #
+                            <h3>Race # {{ race[0].race.id }}</h3>
                         </td>
                         <td colspan="2">
-                            Time elapsed:
+                            <h3>
+                                {% if race[0].race.timeElapsed is not null %}
+                                    Time elapsed: {{ race[0].race.timeElapsed }} s
+                                {% else %}
+                                    Race ready to start!
+                                {% endif %}
+                            </h3>
                         </td>
                     </tr>
                     <tr>
-                        <td>Position</td>
-                        <td>Horse</td>
-                        <td>Distance Covered</td>
-                        <td>Final Time</td>
+                        <td><b>Position</b></td>
+                        <td><b>Horse</b></td>
+                        <td><b>Distance Covered</b></td>
+                        <td><b>Final Time</b></td>
                     </tr>
                     {% for racingHorse in race %}
                         <tr>
@@ -32,9 +38,8 @@
                             <td>{{ racingHorse.horse.name }}</td>
                             <td>{{ racingHorse.distanceCovered }} m</td>
                             <td>
-                                {{ racingHorse.timeInSeconds }}
                                 {% if racingHorse.timeInSeconds is not null %}
-                                    s
+                                    {{ racingHorse.timeInSeconds }} s
                                 {% endif %}
                             </td>
                         </tr>
