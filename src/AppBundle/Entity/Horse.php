@@ -127,6 +127,7 @@ class Horse {
         return $this->getEndurance() * constant('self::ENDURANCE_MULTIPLIER');
     }
 
+    //Slower speed according to the case description
     public function getSlowerSpeed(){
         return $this->getNormalSpeed() - constant('self::JOCKEY_SLOWDOWN') 
             * (100 - ($this->getStrength() * constant('self::STRENGTH_MULTIPLIER'))) / 100;

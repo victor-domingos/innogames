@@ -50,11 +50,12 @@ class RaceController extends Controller
 
                 $i = 0;
                 foreach ($horsesForRace as $horse){
+                    //Creates the racing horse register and set horse as running
                     $this->em->persist(new RacingHorse($race, $horse, 0));
 
                     $horse->setRunning(1);
                     $this->em->merge($horse);
-                    //Breaks after selecting the 8th horse
+                    //Escape foreach after selecting the 8th horse
                     if (++$i >= 8) break;
                 }
 
@@ -78,20 +79,27 @@ class RaceController extends Controller
         } else {
             $this->em->getConnection()->beginTransaction();
             try{
-                //We use a variable to get how many horses have finished within that progress, since the number retrieved in the query
-                //that checks whether the race has finished is not fully updated
+
+                //Using a variable to get how many horses have finished within that progress,
+                //since the number retrieved in the query that checks whether the race has finished 
+                //is not fully updated due to the transaction
                 $horsesThatFinishedInThisProgress = 0;
                 $runningRaces = $this->raceService->getRunningRaces();
                 foreach ($runningRaces as $race){
+
+                    //Retrieves the racing horses data for that race
                     $racingHorses = $this->racingHorseService->getHorsesInRunningRace($race);
                     foreach ($racingHorses as $racingHorse) {
+
                         //Only progress the horses that still have to finish the race
+                        //Method returns the number of horses that had finished the race, 
+                        //but are yet to be committed in the transaction
                         if ($racingHorse->getDistanceCovered() < constant('self::RACE_LENGTH')){
                             $horsesThatFinishedInThisProgress = $this->progress($racingHorse);
                         }
                     }
-                    //Checking if all the horses in the race have finished it, so the race can be finished as well
-                    //or update the time elapsed in the race
+                    //Number of horses that finished in this progress will be added 
+                    //to the number already committed in the database
                     $this->updateRace($race, $racingHorses, $horsesThatFinishedInThisProgress);
                 }
 
@@ -103,6 +111,7 @@ class RaceController extends Controller
                 throw $e;
             }
         }
+
         return $this->forward('AppBundle\Controller\MainController::indexAction', ['progressRaceMsg' => $msg]);
     }
 
@@ -114,26 +123,32 @@ class RaceController extends Controller
         $race = $racingHorse->getRace();
         $startingPoint = $racingHorse->getDistanceCovered();
 
-        //If horse already has passed checkpoint, the next "checkpoint" would be the finish line
+        //If horse already has passed checkpoint (when the horse becomes slower),
+        //the next "checkpoint" would be the finish line
         $checkpoint = $startingPoint < $horse->getCheckpoint() ? $horse->getCheckpoint() : constant('self::RACE_LENGTH');
         
         $startingSpeed = $horse->getStartingSpeed($startingPoint);
-        $estimatedDistance = constant('self::SECONDS_PER_PROGRESS') * $startingSpeed;
-        $estimatedFinalPoint = $startingPoint + $estimatedDistance;
+        $estimatedDistanceRunned = constant('self::SECONDS_PER_PROGRESS') * $startingSpeed;
+        $estimatedFinalPoint = $startingPoint + $estimatedDistanceRunned;
 
-        //If horse passes the checkpoint, the horse will have a reduced speed after the checkpoint, so it must be calculated 
-        //how much of the distance is covered with the reduced speed. If the checkpoint is the finish line, then it will be 
-        //calculated when the horse has reached it within that progress
+        //The horse will have a reduced speed after the checkpoint, so it must be calculated 
+        //how much of the distance is covered with reduced speed.
+        //If the checkpoint is the finish line, then it will be calculated when the horse has reached it within that progress
         if ($startingPoint < $checkpoint && $estimatedFinalPoint >= $checkpoint) {
-            //Checking whether the checkpoint is the finishing line or not to retrieve the correct piece of information
+
+            //Checking if the checkpoint is the endurance limit or the race finish to retrieve the correct information needed
             if ($checkpoint == constant('self::RACE_LENGTH')) {
+
+                //Horse has reached the finishing line, so distance covered is the race length
                 $racingHorse->setDistanceCovered($checkpoint);
-                //The finishing time will be the race's time elapsed (as it still doesn't have the seconds per progress added
+
+                //The finishing time will be the race's time elapsed (as it still doesn't have the seconds per progress added)
                 //plus the time needed to reach the goal in that progress
                 $racingHorse->setTimeInSeconds(
                     $race->getTimeElapsed() + $horse->getTimeToCheckpoint(
                         $checkpoint, constant('self::SECONDS_PER_PROGRESS'), $startingPoint, $estimatedFinalPoint
                     ));
+
                 $horsesThatFinishedInThisProgress++;
             } else {
                 $racingHorse->setDistanceCovered($horse->calculateFinalDistanceAfterCheckpoint(
@@ -141,32 +156,39 @@ class RaceController extends Controller
                 ));
             }
 
-        //Horse has not reached any checkpoint, so it simply adds the estimated distance as it will run with an uniform speed and in the full time
+        //Horse has not reached any checkpoint, so simply adds the estimated distance 
+        //as it runs with an uniform speed the whole progress time
         } else {
             $racingHorse->setDistanceCovered($estimatedFinalPoint);
         }
 
         $this->em->merge($racingHorse);
+
         return $horsesThatFinishedInThisProgress;
     }
 
-    //Method to check whether the race is finished and update data or still running and add the elapsed time
+    //Method to update race data according to race finish or not
     private function updateRace(Race $race, $racingHorses, $horsesThatFinishedInThisProgress){
         $finishedHorses = $horsesThatFinishedInThisProgress +
             $this->racingHorseService->countNumberOfFinishedHorses($race);
+
+        //All horses have finished, so race is finished as well
         if ($finishedHorses == 8){
             $race->finishRace();
             $this->em->merge($race);
-            //We still have to update the horse's running condition to false
+
+            //Update each of the horse's running condition to false
             foreach ($racingHorses as $racingHorse) {
                 $horse = $racingHorse->getHorse();
                 $horse->setRunning(false);
                 $this->em->merge($horse);
             }
+
+        //Race still running, so we the time elapsed is updated after every horse had progressed
         } else {
-            //Race still running, so we must update the time elapsed of the race after progressing each of the horses
             $race->setTimeElapsed($race->getTimeElapsed() + constant('self::SECONDS_PER_PROGRESS'));
         }
+
         $this->em->merge($race);
     }
 }

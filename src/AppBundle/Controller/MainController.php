@@ -23,7 +23,6 @@ class MainController extends Controller
      */
     public function indexAction($createRaceMsg = null, $progressRaceMsg = null) {
         //Creating an array of variables that will be passed to the index.html.twig
-        //If something is not appliable (e.g. no running races), then no variable would be passed
         $viewVariables = [
             'createRaceMsg' => $createRaceMsg,
             'progressRaceMsg' => $progressRaceMsg
