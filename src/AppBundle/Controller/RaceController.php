@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class RaceController extends Controller
 {
-
+    const RACE_LENGTH = 1500;
     const SECONDS_PER_PROGRESS = 10;
 
     /**
@@ -32,6 +32,7 @@ class RaceController extends Controller
 
                 $i = 0;
                 foreach ($horsesForRace as $horse){
+                    //ToDo: Check constructor
                     $racingHorse = new RacingHorse();
                     $racingHorse->setRace($race);
                     $racingHorse->setHorse($horse);
@@ -40,6 +41,7 @@ class RaceController extends Controller
 
                     $horse->setRunning(1);
                     $em->merge($horse);
+                    //Breaks after selecting the 8th horse
                     if (++$i >= 8) break;
                 }
 
@@ -68,8 +70,14 @@ class RaceController extends Controller
                 foreach ($runningRaces as $race){
                     $racingHorses = $this->getDoctrine()->getRepository(RacingHorse::class)->getHorsesInRunningRace($race);
                     foreach ($racingHorses as $racingHorse) {
-                        $this->progress($racingHorse);
+                        //Only progress the horses that still have to finish the race
+                        if ($racingHorse->getDistanceCovered() < constant('self::RACE_LENGTH')){
+                            $this->progress($racingHorse);
+                        }
                     }
+                    //Update the time elapsed of the race after progressing each of the horses
+                    $race->setTimeElapsed($race->getTimeElapsed() + constant('self::SECONDS_PER_PROGRESS'));
+                    $em->merge($race);
                 }
 
                 $em->flush();
@@ -86,21 +94,28 @@ class RaceController extends Controller
     private function progress(RacingHorse $racingHorse){
         $em = $this->getDoctrine()->getManager();
         $horse = $racingHorse->getHorse();
-        $checkpoint = $horse->getCheckpoint();
         $startingPoint = $racingHorse->getDistanceCovered();
+
+        //If horse already has passed checkpoint, the next "checkpoint" would be the finish line
+        $checkpoint = $startingPoint < $horse->getCheckpoint() ? $horse->getCheckpoint() : constant('self::RACE_LENGTH');
+        
         $startingSpeed = $horse->getStartingSpeed($startingPoint);
         $estimatedDistance = constant('self::SECONDS_PER_PROGRESS') * $startingSpeed;
         $estimatedFinalPoint = $startingPoint + $estimatedDistance;
+
         //If horse passes the checkpoint, the horse will have a reduced speed after the checkpoint, so it must be calculated 
-        //how much of the distance is covered with the reduced speed
+        //how much of the distance is covered with the reduced speed. If the checkpoint is the finish line, then it will be 
+        //calculated when the horse has reached it within that progress
         if ($startingPoint < $checkpoint && $estimatedFinalPoint >= $checkpoint) {
             $racingHorse->setDistanceCovered($horse->calculateFinalDistanceAfterCheckpoint(
                 constant('self::SECONDS_PER_PROGRESS'), $startingPoint, $estimatedFinalPoint
             ));
-        //Horse has not reached the point of slowdown, so it simply adds the estimated distance
+
+        //Horse has not reached any checkpoint, so it simply adds the estimated distance
         } else {
             $racingHorse->setDistanceCovered($estimatedFinalPoint);
         }
+
         $em->merge($racingHorse);
 
     }
