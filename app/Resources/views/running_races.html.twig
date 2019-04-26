@@ -6,7 +6,7 @@
     <table border="1" style="border: thin; width: 100%">
         <tr>
             <td colspan="3">
-                <h2>Running Races</h2>
+                <h3>Running Races</h3>
             </td>
         </tr>
         {% for race in races %}
@@ -14,16 +14,16 @@
                 <table border="1" style="border: thin; width: 100%;">
                     <tr>
                         <td colspan="2">
-                            <h3>Race # {{ race[0].race.id }}</h3>
+                            <b>Race # {{ race[0].race.id }}</b>
                         </td>
                         <td colspan="2">
-                            <h3>
+                            <b>
                                 {% if race[0].race.timeElapsed is not null %}
                                     Time elapsed: {{ race[0].race.timeElapsed }} s
                                 {% else %}
                                     Race ready to start!
                                 {% endif %}
-                            </h3>
+                            </b>
                         </td>
                     </tr>
                     <tr>

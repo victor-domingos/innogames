@@ -20,6 +20,15 @@ class RaceRepository extends EntityRepository {
             ->getQuery()
             ->getResult();
     }
+
+    public function getLastFiveFinishedRaces(){
+        return $this->createQueryBuilder('r')
+            ->where('r.finishedTime is not null')
+            ->orderBy('r.finishedTime', 'DESC')
+            ->setMaxResults(5)
+            ->getQuery()
+            ->getResult();
+    }
 }
 
 ?>

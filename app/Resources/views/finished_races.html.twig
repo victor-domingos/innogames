@@ -1,4 +1,41 @@
 <!DOCTYPE html>
 <html>
-	<h2>Last 5 Finished Races</h2>
+{% if finishedRaces is defined %}
+	<table border="1" style="border: thin; width: 100%">
+		<tr>
+			<td colspan="5">
+				<h3>Last 5 Finished Races</h3>
+			</td>
+		</tr>
+		{% for finishedRace in finishedRaces %}
+			<td style="width: 20%">
+				<table border="1" style="border: thin; width: 100%;">
+					<tr>
+						<td colspan="3">
+							<b>Race # {{ finishedRace[0].race.id }}</b>
+						</td>
+					</tr>
+					<tr>
+						<td><b>Position</b></td>
+						<td><b>Horse</b></td>
+						<td><b>Final Time</b></td>
+					</tr>
+                    {% for racingHorse in finishedRace %}
+						<tr>
+							<td>{{ loop.index }} </td>
+							<td>{{ racingHorse.horse.name }}</td>
+							<td>
+                                {% if racingHorse.timeInSeconds is not null %}
+                                    {{ racingHorse.timeInSeconds }} s
+                                {% endif %}
+							</td>
+						</tr>
+					{% endfor %}
+				</table>
+			</td>
+        {% endfor %}
+	</table>
+{% else %}
+	No races have finished yet!
+{% endif %}
 </html>

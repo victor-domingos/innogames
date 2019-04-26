@@ -1,4 +1,13 @@
 <!DOCTYPE html>
 <html>
-	<h2>Race Record</h2>
+{% if raceRecord is defined %}
+	<h3>Race Record</h3>
+	<b>Best time:</b> {{ raceRecord[0].timeInSeconds }} s <br/>
+	<b>Horse:</b> {{ raceRecord[0].horse.name }} <br/>
+	<b>Speed:</b> {{ raceRecord[0].horse.speed }} <br/>
+	<b>Strength:</b> {{ raceRecord[0].horse.strength }} <br/>
+	<b>Endurance:</b> {{ raceRecord[0].horse.endurance }}
+{% else %}
+	No races have finished yet!
+{% endif %}
 </html>

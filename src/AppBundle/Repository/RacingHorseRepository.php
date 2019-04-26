@@ -27,6 +27,28 @@ class RacingHorseRepository extends EntityRepository {
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    public function getFinishedRacePodium(Race $race){
+        return $this->createQueryBuilder('rh')
+            ->select('rh')
+            ->where('rh.race = :race')
+            ->setParameter('race', $race)
+            ->addOrderBy('rh.distanceCovered', 'DESC')
+            ->addOrderBy('rh.timeInSeconds', 'ASC')
+            ->setMaxResults(3)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function getRaceRecord(){
+        return $this->createQueryBuilder('rh')
+            ->select('rh')
+            ->andWhere('rh.timeInSeconds is not null')
+            ->addOrderBy('rh.timeInSeconds', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getResult();
+    }
 }
 
 ?>

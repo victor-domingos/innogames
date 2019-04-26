@@ -7,13 +7,13 @@
     </head>
     <body>
         <!--CREATE RACE-->
-        <a href="{{ path('create_race') }}" value="Create Race"/>Create Race</a>
+        <button value="Create Race" onclick="location.href='{{ path('create_race') }}'">Create Race</button>
         {% if createRaceMsg is defined %}
             {{createRaceMsg}}
         {% endif %}
         <hr/>
         <!--PROGRESS-->
-        <a href="{{ path('progress_race') }}" value="Progress">Progress</a>
+        <button value="Progress" onclick="location.href='{{ path('progress_race') }}'">Progress</button>
         {% if progressRaceMsg is defined %}
             {{progressRaceMsg}}
         {% endif %}

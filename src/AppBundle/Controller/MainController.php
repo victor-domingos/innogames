@@ -33,6 +33,7 @@ class MainController extends Controller
             'countRunningRaces' => $countRunningRaces
         ];
 
+        //Running Races
         if ($countRunningRaces > 0){
             $races = array();
             $runningRaces = $this->getRunningRaces();
@@ -41,6 +42,23 @@ class MainController extends Controller
                 array_push($races, $this->raceDataService->runningRaceData($race));
             }
             $viewVariables['races'] = $races;
+        }
+
+        //Last 5 Finished Races
+        $finishedRaces = array();
+        $lastFiveFinishedRaces = $this->raceDataService->getLastFiveFinishedRaces();
+        if (sizeof($lastFiveFinishedRaces) > 0){
+            //Retrieving the top-3 data from HorseRacing to be able to retrieve information from Horse
+            foreach($lastFiveFinishedRaces as $finishedRace){
+                array_push($finishedRaces, $this->raceDataService->getFinishedRacePodium($finishedRace));
+            }
+            $viewVariables['finishedRaces'] = $finishedRaces;
+        }
+
+        //Race Record
+        $raceRecord = $this->raceDataService->getRaceRecord();
+        if ($raceRecord != null){
+            $viewVariables['raceRecord'] = $raceRecord;
         }
 
         return $this->render('index.html.twig', $viewVariables);
