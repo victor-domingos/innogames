@@ -66,5 +66,10 @@ class Race {
     public function getRacingHorseRaces(){
         return $this->racingHorseRaces;
     }
+
+    public function finishRace(){
+        $this->setFinishedTime(new \DateTime());
+        $this->setTimeElapsed(null); //this field will not be needed anymore
+    }
 }
 ?>

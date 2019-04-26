@@ -17,6 +17,16 @@ class RacingHorseRepository extends EntityRepository {
 			->getQuery()
 			->getResult();
 	}
+
+	public function countNumberOfFinishedHorses(Race $race){
+        return $this->createQueryBuilder('rh')
+            ->select('COUNT(rh.id) as finishedHorses')
+            ->where('rh.race = :race')
+            ->andWhere('rh.timeInSeconds is not null')
+            ->setParameter('race', $race)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }
 
 ?>
