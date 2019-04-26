@@ -36,10 +36,10 @@
                         <tr>
                             <td>{{ loop.index }} </td>
                             <td>{{ racingHorse.horse.name }}</td>
-                            <td>{{ racingHorse.distanceCovered }} m</td>
+                            <td>{{ racingHorse.distanceCovered|number_format(3) }} m</td>
                             <td>
                                 {% if racingHorse.timeInSeconds is not null %}
-                                    {{ racingHorse.timeInSeconds }} s
+                                    {{ racingHorse.timeInSeconds|number_format(3) }} s
                                 {% endif %}
                             </td>
                         </tr>
