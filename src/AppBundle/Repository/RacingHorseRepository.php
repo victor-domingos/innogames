@@ -12,8 +12,8 @@ class RacingHorseRepository extends EntityRepository {
 			->select('rh')
 			->where('rh.race = :race')
 			->setParameter('race', $race)
-			->orderBy('rh.timeInSeconds', 'DESC')
-			->orderBy('rh.distanceCovered', 'DESC')
+			->addOrderBy('rh.distanceCovered', 'DESC')
+            ->addOrderBy('rh.timeInSeconds', 'ASC')
 			->getQuery()
 			->getResult();
 	}
