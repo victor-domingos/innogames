@@ -8,3 +8,5 @@ After downloading the project, it is required to run "composer install" from the
 The parameters to the database connection are set in "app/config/parameters.yml"
 
 The database schema is located at the "db" folder. The view pages are in the "app/Resources/views" folder and the php implementation in "src/AppBundle/", with a folder for Controller, Entity, Repository and Service
+
+The webpage can be accessed at http://localhost/innogames/web/app_dev.php/index (or any other name after localhost/ in case you decide to change the folder name)
